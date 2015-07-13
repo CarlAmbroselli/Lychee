@@ -6,7 +6,9 @@
 $(document).ready(function() {
 
 	/* Event Name */
-	var eventName = ('ontouchend' in document.documentElement) ? 'touchend' : 'click';
+	//var eventName = ('ontouchend' in document.documentElement) ? 'touchend' : 'click';
+        // temp fix for chrome on touchscreen computer
+	var eventName = 'click';
 
 	/* Set API error handler */
 	api.onError = lychee.error;

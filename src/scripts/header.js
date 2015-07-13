@@ -19,7 +19,9 @@ header.dom = function(selector) {
 header.bind = function() {
 
 	// Event Name
-	var eventName = ('ontouchend' in document.documentElement) ? 'touchend' : 'click';
+	//var eventName = ('ontouchend' in document.documentElement) ? 'touchend' : 'click';
+        // Temp fix since it wont work with chrome and touchscreen computer
+	var eventName = 'click';
 
 	/* Buttons */
 	header.dom('#title').on(eventName, function(e) {

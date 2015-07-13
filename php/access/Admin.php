@@ -36,7 +36,8 @@ class Admin extends Access {
 			case 'Photo::delete':			$this->deletePhoto(); break;
 
 			# Add functions
-			case 'Photo::add':				$this->upload(); break;
+			case 'Photo::add':				$this->uploadImage(); break;
+			case 'Video::add':				$this->uploadVideo(); break;
 			case 'Import::url':				$this->importUrl(); break;
 			case 'Import::server':			$this->importServer(); break;
 
@@ -208,11 +209,19 @@ class Admin extends Access {
 
 	# Add functions
 
-	private function upload() {
+	private function uploadImage() {
 
 		Module::dependencies(isset($_FILES, $_POST['albumID'], $_POST['tags']));
 		$photo = new Photo($this->database, $this->plugins, $this->settings, null);
 		echo $photo->add($_FILES, $_POST['albumID'], '', $_POST['tags']);
+
+	}
+
+	private function uploadVideo() {
+
+		Module::dependencies(isset($_FILES, $_POST['albumID'], $_POST['tags']));
+		$video = new Video($this->database, $this->plugins, $this->settings, null);
+		echo $video->add($_FILES, $_POST['albumID'], '', $_POST['tags']);
 
 	}
 
@@ -246,22 +255,26 @@ class Admin extends Access {
 		global $dbName;
 
 		Module::dependencies(isset($_POST['version']));
-		$session = new Session($this->plugins, $this->settings);
+		$session = new Session($this->database, $dbName, $this->plugins, $this->settings);
 		echo json_encode($session->init($this->database, $dbName, false, $_POST['version']));
 
 	}
 
 	private function login() {
 
+		global $dbName;
+
 		Module::dependencies(isset($_POST['user'], $_POST['password']));
-		$session = new Session($this->plugins, $this->settings);
+		$session = new Session($this->database, $dbName, $this->plugins, $this->settings);
 		echo $session->login($_POST['user'], $_POST['password']);
 
 	}
 
 	private function logout() {
 
-		$session = new Session($this->plugins, $this->settings);
+		global $dbName;
+
+		$session = new Session($this->database, $dbName, $this->plugins, $this->settings);
 		echo $session->logout();
 
 	}

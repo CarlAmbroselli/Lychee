@@ -29,7 +29,9 @@ sidebar.bind = function() {
 	// event handlers should be removed before binding a new one.
 
 	// Event Name
-	var eventName = ('ontouchend' in document.documentElement) ? 'touchend' : 'click';
+	//var eventName = ('ontouchend' in document.documentElement) ? 'touchend' : 'click';
+        // temp fix for chrome with touchscreen computer
+	var eventName = 'click';
 
 	sidebar
 		.dom('#edit_title')

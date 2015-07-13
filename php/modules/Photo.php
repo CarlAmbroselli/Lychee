@@ -623,7 +623,11 @@ class Photo extends Module {
 		else						$photo['medium'] = '';
 
 		# Parse paths
-		$photo['url']		= LYCHEE_URL_UPLOADS_BIG . $photo['url'];
+		if ( $photo['media_type'] == 'video' ) {
+			$photo['url']		= LYCHEE_URL_UPLOADS_VIDEO . $photo['url'];
+		} else {
+			$photo['url']		= LYCHEE_URL_UPLOADS_BIG . $photo['url'];
+		}
 		$photo['thumbUrl']	= LYCHEE_URL_UPLOADS_THUMB . $photo['thumbUrl'];
 
 		if ($albumID!='false') {
@@ -1117,7 +1121,7 @@ class Photo extends Module {
 
 			# Duplicate entry
 			$values		= array(LYCHEE_TABLE_PHOTOS, $id, LYCHEE_TABLE_PHOTOS, $photo->id);
-			$query		= Database::prepare($this->database, "INSERT INTO ? (id, title, url, description, tags, type, width, height, size, iso, aperture, make, model, shutter, focal, takestamp, thumbUrl, album, public, star, checksum) SELECT '?' AS id, title, url, description, tags, type, width, height, size, iso, aperture, make, model, shutter, focal, takestamp, thumbUrl, album, public, star, checksum FROM ? WHERE id = '?'", $values);
+			$query		= Database::prepare($this->database, "INSERT INTO ? (id, title, url, description, tags, type, width, height, size, iso, aperture, make, model, shutter, focal, takestamp, thumbUrl, album, public, star, checksum, media_type) SELECT '?' AS id, title, url, description, tags, type, width, height, size, iso, aperture, make, model, shutter, focal, takestamp, thumbUrl, album, public, star, checksum, media_type FROM ? WHERE id = '?'", $values);
 			$duplicate	= $this->database->query($query);
 			if (!$duplicate) {
 				Log::error($this->database, __METHOD__, __LINE__, $this->database->error);
@@ -1160,7 +1164,7 @@ class Photo extends Module {
 
 				# Get retina thumb url
 				$thumbUrl2x = explode(".", $photo->thumbUrl);
-				$thumbUrl2x = $thumbUrl2x[0] . '@2x.' . $thumbUrl2x[1];
+				$thumbUrl2x = $thumbUrl2x[0] . '@2x.' . (isset($thumbUrl2x[1]) ? $thumbUrl2x[1] : '');
 
 				# Delete big
 				if (file_exists(LYCHEE_UPLOADS_BIG . $photo->url)&&!unlink(LYCHEE_UPLOADS_BIG . $photo->url)) {
@@ -1175,7 +1179,7 @@ class Photo extends Module {
 				}
 
 				# Delete thumb
-				if (file_exists(LYCHEE_UPLOADS_THUMB . $photo->thumbUrl)&&!unlink(LYCHEE_UPLOADS_THUMB . $photo->thumbUrl)) {
+				if (file_exists(LYCHEE_UPLOADS_THUMB . $photo->thumbUrl)&&!is_dir(LYCHEE_UPLOADS_THUMB . $photo->thumbUrl)&&!unlink(LYCHEE_UPLOADS_THUMB . $photo->thumbUrl)) {
 					Log::error($this->database, __METHOD__, __LINE__, 'Could not delete photo in uploads/thumb/');
 					return false;
 				}
@@ -1185,6 +1189,14 @@ class Photo extends Module {
 					Log::error($this->database, __METHOD__, __LINE__, 'Could not delete high-res photo in uploads/thumb/');
 					return false;
 				}
+
+                                #Delete video
+                                if (file_exists(LYCHEE_UPLOADS_VIDEO . $photo->url)&&!unlink(LYCHEE_UPLOADS_VIDEO . $photo->url))	 {
+					Log::error($this->database, __METHOD__, __LINE__, 'Could not delete video in uploads/video/');
+					return false;
+				}
+
+
 
 			}
 
